@@ -15,13 +15,21 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private Activity mainActivity;
+    SupportMapFragment mapFragment;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +46,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-
-
-                Intent intent = new Intent(mainActivity, MapsActivity.class);
-                startActivity(intent);
-
+                refreshMap();
             }
         });
 
@@ -55,18 +59,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //MapsFragment mapsFragment = new MapsFragment();
-        //MapsActivity mapsActivity = new MapsActivity();
-        //getSupportFragmentManager().beginTransaction().add(R.id.content_main, mapsFragment).commit();
-    }
-
-    public void refreshMap(View view) {
-
-    }
-
-    public void goMap(View view) {
-        Intent intent = new Intent(this, MapsActivity.class);
-        startActivity(intent);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
@@ -124,5 +119,25 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        Toast.makeText(this, "Entra en onMapReady del MainActivity", Toast.LENGTH_LONG).show();
+        // Add a marker in Sydney and move the camera
+        LatLng madrid = new LatLng(40.415363, -3.707398);
+        Float zoom = new Float(15);
+        mMap.addMarker(new MarkerOptions().position(madrid).title("Marker in Madrid"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(madrid));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(madrid, zoom));
+    }
+
+    public void refreshMap() {
+        LatLng madrid = new LatLng(40.413889, -3.6925);
+        Float zoom = new Float(15);
+        mMap.addMarker(new MarkerOptions().position(madrid).title("Marker onRefresh"));
+        //mMap.moveCamera(CameraUpdateFactory.newLatLng(madrid));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(madrid, zoom));
     }
 }
