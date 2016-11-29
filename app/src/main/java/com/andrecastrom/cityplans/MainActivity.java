@@ -1,11 +1,16 @@
 package com.andrecastrom.cityplans;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -27,7 +32,10 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+
     private Activity mainActivity;
+    private Context context;
     SupportMapFragment mapFragment;
     private GoogleMap mMap;
 
@@ -39,6 +47,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         mainActivity = this;
+        context = getApplicationContext();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -121,16 +130,42 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //Metodos para el Mapa
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        Toast.makeText(this, "Entra en onMapReady del MainActivity", Toast.LENGTH_LONG).show();
-        // Add a marker in Sydney and move the camera
         LatLng madrid = new LatLng(40.415363, -3.707398);
         Float zoom = new Float(15);
         mMap.addMarker(new MarkerOptions().position(madrid).title("Marker in Madrid"));
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(madrid));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(madrid, zoom));
+
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        } else {
+            ActivityCompat.requestPermissions(mainActivity,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+        /*
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                if (ContextCompat.checkSelfPermission(context,
+                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mMap.setMyLocationEnabled(true);
+                } else {
+                    // Show rationale and request permission.
+                    ActivityCompat.requestPermissions(mainActivity,
+                            new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                            LOCATION_PERMISSION_REQUEST_CODE);
+                }
+                return true;
+            }
+        });
+        */
     }
 
     public void refreshMap() {
@@ -140,4 +175,23 @@ public class MainActivity extends AppCompatActivity
         //mMap.moveCamera(CameraUpdateFactory.newLatLng(madrid));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(madrid, zoom));
     }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSION_REQUEST_CODE:
+                if (ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    mMap.setMyLocationEnabled(true);
+                } else {
+                    // Permission was denied. Display an error message.
+                    mMap.setMyLocationEnabled(false);
+                    Toast.makeText(context, getString(R.string.error_must_grant_location), Toast.LENGTH_SHORT).show();
+                    //Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG).setAction("Action", null).show();
+                }
+        }
+    }
+
+
 }
