@@ -12,7 +12,7 @@ public class Event {
     private String name;
     private String description;
     private String icon;
-    private String color;
+    private Float color;
     private Date dateStart;
     private Date dateEnd;
     private String hourStart;
@@ -62,11 +62,11 @@ public class Event {
         this.icon = icon;
     }
 
-    public String getColor() {
+    public Float getColor() {
         return color;
     }
 
-    public void setColor(String color) {
+    public void setColor(Float color) {
         this.color = color;
     }
 

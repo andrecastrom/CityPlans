@@ -22,6 +22,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.andrecastrom.cityplans.presenter.DataMapPresenter;
+import com.andrecastrom.cityplans.presenter.IDataMapPresenter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -38,6 +40,7 @@ public class MainActivity extends AppCompatActivity
     private Context context;
     SupportMapFragment mapFragment;
     private GoogleMap mMap;
+    private IDataMapPresenter dataMapPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +58,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                refreshMap();
+                getData();
             }
         });
 
@@ -71,6 +74,9 @@ public class MainActivity extends AppCompatActivity
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
+        dataMapPresenter = new DataMapPresenter();
     }
 
     @Override
@@ -135,6 +141,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        dataMapPresenter.setMap(mMap);
+
         LatLng madrid = new LatLng(40.415363, -3.707398);
         Float zoom = new Float(15);
         mMap.addMarker(new MarkerOptions().position(madrid).title("Marker in Madrid"));
@@ -192,6 +200,17 @@ public class MainActivity extends AppCompatActivity
                 }
         }
     }
+
+
+    /*
+    Datos
+     */
+
+    public void getData() {
+        mMap.clear();
+        dataMapPresenter.getDataMap();
+    }
+
 
 
 }
